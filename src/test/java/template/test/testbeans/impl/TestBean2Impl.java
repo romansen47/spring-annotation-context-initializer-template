@@ -13,6 +13,10 @@ public class TestBean2Impl implements TestBean2 {
 
 	private static final String MESSAGE = "I was implicitly defined as a bean and then was autowired into testBean :)";
 
+	/**
+	 * Performs the say hello operation.
+	 * @return the result of the operation
+	 */
 	@Override
 	public String sayHello() {
 		return this.toString()+": "+MESSAGE;

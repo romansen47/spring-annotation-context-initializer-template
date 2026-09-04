@@ -18,11 +18,19 @@ public class TestBeanImpl implements TestBean {
 
 	private static final String MESSAGE = "I was explicitly defined as a bean and testBean2 was autowired";
 
+	/**
+	 * Returns the test bean2.
+	 * @return the test bean2
+	 */
 	@Override
 	public TestBean2 getTestBean2() {
 		return this.testBean2;
 	}
 
+	/**
+	 * Performs the say hello operation.
+	 * @return the result of the operation
+	 */
 	@Override
 	public String sayHello() {
 		return this.toString() + ": " + MESSAGE;

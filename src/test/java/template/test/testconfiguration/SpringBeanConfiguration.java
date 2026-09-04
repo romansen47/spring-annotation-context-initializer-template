@@ -14,8 +14,8 @@ import template.test.testbeans.impl.TestBeanImpl;
 public class SpringBeanConfiguration {
 
 	/**
-	 * For presentation purposes we create this bean within a configuration class. The other test bean will be created by {@link org.springframework.stereotype.Component} annotation.
-	 * @return the test bean
+	 * Performs the test bean operation.
+	 * @return the result of the operation
 	 */
 	@Bean
 	public TestBean testBean() {

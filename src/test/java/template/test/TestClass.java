@@ -22,7 +22,7 @@ public class TestClass {
 	private static ApplicationContext applicationContext; 
 	
 	/**
-	 * Create the annotation application context
+	 * Performs the prepare operation.
 	 */
 	@BeforeClass
 	public static void prepare() {
@@ -30,8 +30,7 @@ public class TestClass {
 	}
 	
 	/**
-	 * {@link SpringBeanConfiguration#getTestBean} actually returns new TestBeanImpl-instance but since we are using Spring
-	 * and scope is singleton this method will always return same instance.
+	 * Performs the test configuration operation.
 	 */
 	@Test
 	public void testConfiguration() {
@@ -43,7 +42,7 @@ public class TestClass {
 	}
 	
 	/**
-	 *  Test whether bean autowiring and instantiation works fine both ways
+	 * Performs the test creation of test beans operation.
 	 */
 	@Test
 	public void testCreationOfTestBeans() {

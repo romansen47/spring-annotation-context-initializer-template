@@ -15,6 +15,10 @@ public class SpringAnnotationContextInitializerImplForTest extends SpringAnnotat
 
 	public static final String BASE_PACKAGES = "template..*";
 
+	/**
+	 * Returns the base packages.
+	 * @return the base packages
+	 */
 	@Override
 	public String getBasePackages() {
 		return SpringAnnotationContextInitializerImplForTest.BASE_PACKAGES;
