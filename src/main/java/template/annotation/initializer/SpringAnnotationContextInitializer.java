@@ -21,12 +21,18 @@ public abstract class SpringAnnotationContextInitializer implements ApplicationC
 
 	private ApplicationContext applicationContext;
 
+	/**
+	 * Creates a new SpringAnnotationContextInitializer instance.
+	 */
 	public SpringAnnotationContextInitializer() {
 		this.applicationContext = new AnnotationConfigApplicationContext();
 		this.updateLoggers();
 		this.getBeans();
 	}
 
+	/**
+	 * Updates the loggers.
+	 */
 	private void updateLoggers() {
 		final var ctx = (LoggerContext) LogManager.getContext(false);
 		final var config = ctx.getConfiguration();
@@ -35,6 +41,9 @@ public abstract class SpringAnnotationContextInitializer implements ApplicationC
 		ctx.updateLoggers();
 	}
 
+	/**
+	 * Returns the beans.
+	 */
 	private void getBeans() {
 		SpringAnnotationContextInitializer.logger.info("applicationContext {} scanning in definitions..*",
 				this.applicationContext.toString().split(",")[0]);
@@ -48,15 +57,27 @@ public abstract class SpringAnnotationContextInitializer implements ApplicationC
 		}
 	}
 
+	/**
+	 * Returns the application context.
+	 * @return the application context
+	 */
 	public ApplicationContext getApplicationContext() {
 		return this.applicationContext;
 	}
 
+	/**
+	 * Sets the application context.
+	 * @param applicationContext the application context
+	 */
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 
+	/**
+	 * Returns the base packages.
+	 * @return the base packages
+	 */
 	public abstract String getBasePackages();
 
 }
