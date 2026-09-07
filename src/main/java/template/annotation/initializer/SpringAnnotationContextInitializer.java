@@ -11,73 +11,115 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.support.AbstractApplicationContext;
 
 /**
- * Base template for the initializer class
- * @author romansen47
+ * Base class for bootstrapping a Spring annotation-based application context.
  *
+ * <p>Creating a concrete subclass immediately creates an
+ * {@link AnnotationConfigApplicationContext}, scans the package returned by
+ * {@link #getBasePackages()}, refreshes the context, and therefore makes all
+ * discovered Spring components and configuration classes available through
+ * {@link #getApplicationContext()}.</p>
+ *
+ * <p>The implementation is intended for small applications or integration
+ * layers that want to obtain a Spring context without introducing a larger
+ * framework bootstrap. Subclasses only need to provide the package that should
+ * be scanned.</p>
+ *
+ * <p><strong>Subclassing note:</strong> {@link #getBasePackages()} is invoked
+ * from this class's constructor. Implementations should therefore return a
+ * constant or another value that is already safe to access during superclass
+ * construction and must not depend on subclass fields initialized afterwards.</p>
+ *
+ * @author romansen47
  */
 public abstract class SpringAnnotationContextInitializer implements ApplicationContextAware {
 
-	private static final Logger logger = LogManager.getLogger(SpringAnnotationContextInitializer.class);
+    private static final Logger logger = LogManager.getLogger(SpringAnnotationContextInitializer.class);
 
-	private ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
-	/**
-	 * Creates a new SpringAnnotationContextInitializer instance.
-	 */
-	public SpringAnnotationContextInitializer() {
-		this.applicationContext = new AnnotationConfigApplicationContext();
-		this.updateLoggers();
-		this.getBeans();
-	}
+    /**
+     * Creates, scans, and refreshes a new annotation-based Spring application
+     * context.
+     *
+     * <p>Instantiation is eager: when this constructor returns, the context has
+     * already been refreshed and discovered beans can be retrieved immediately.</p>
+     */
+    protected SpringAnnotationContextInitializer() {
+        this.applicationContext = new AnnotationConfigApplicationContext();
+        updateLoggers();
+        initializeBeans();
+    }
 
-	/**
-	 * Updates the loggers.
-	 */
-	private void updateLoggers() {
-		final var ctx = (LoggerContext) LogManager.getContext(false);
-		final var config = ctx.getConfiguration();
-		final var loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-		loggerConfig.setLevel(Level.INFO);
-		ctx.updateLoggers();
-	}
+    /**
+     * Sets the root Log4j logger level to {@link Level#INFO} for the current
+     * logger context.
+     */
+    private void updateLoggers() {
+        final var ctx = (LoggerContext) LogManager.getContext(false);
+        final var config = ctx.getConfiguration();
+        final var loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+        loggerConfig.setLevel(Level.INFO);
+        ctx.updateLoggers();
+    }
 
-	/**
-	 * Returns the beans.
-	 */
-	private void getBeans() {
-		SpringAnnotationContextInitializer.logger.info("applicationContext {} scanning in definitions..*",
-				this.applicationContext.toString().split(",")[0]);
-		((AnnotationConfigApplicationContext) this.applicationContext).scan(this.getBasePackages());
-		SpringAnnotationContextInitializer.logger.info("applicationContext {} refreshing",
-				this.applicationContext.toString().split(",")[0]);
-		((AbstractApplicationContext) this.applicationContext).refresh();
-		SpringAnnotationContextInitializer.logger.info("Beans we are aware of:");
-		for (final String beanName : this.applicationContext.getBeanNamesForType(Object.class)) {
-			SpringAnnotationContextInitializer.logger.info("bean " + beanName);
-		}
-	}
+    /**
+     * Scans the configured base package, refreshes the context, and logs the
+     * bean names visible through the resulting application context.
+     */
+    private void initializeBeans() {
+        String basePackages = getBasePackages();
+        if (basePackages == null || basePackages.isBlank()) {
+            throw new IllegalStateException("Base package for Spring component scanning must not be blank");
+        }
 
-	/**
-	 * Returns the application context.
-	 * @return the application context
-	 */
-	public ApplicationContext getApplicationContext() {
-		return this.applicationContext;
-	}
+        logger.info("applicationContext {} scanning in {}",
+                this.applicationContext.toString().split(",")[0],
+                basePackages);
+        ((AnnotationConfigApplicationContext) this.applicationContext).scan(basePackages);
+        logger.info("applicationContext {} refreshing",
+                this.applicationContext.toString().split(",")[0]);
+        ((AbstractApplicationContext) this.applicationContext).refresh();
+        logger.info("Beans we are aware of:");
+        for (final String beanName : this.applicationContext.getBeanNamesForType(Object.class)) {
+            logger.info("bean {}", beanName);
+        }
+    }
 
-	/**
-	 * Sets the application context.
-	 * @param applicationContext the application context
-	 */
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}
+    /**
+     * Returns the application context managed by this initializer.
+     *
+     * <p>Immediately after construction this is the internally created and
+     * refreshed {@link AnnotationConfigApplicationContext}. When Spring itself
+     * invokes {@link #setApplicationContext(ApplicationContext)}, the supplied
+     * context becomes the value returned here.</p>
+     *
+     * @return the current application context
+     */
+    public ApplicationContext getApplicationContext() {
+        return this.applicationContext;
+    }
 
-	/**
-	 * Returns the base packages.
-	 * @return the base packages
-	 */
-	public abstract String getBasePackages();
+    /**
+     * Replaces the context reference exposed by this initializer.
+     *
+     * <p>This method implements Spring's {@link ApplicationContextAware}
+     * contract. It does not scan or refresh the supplied context.</p>
+     *
+     * @param applicationContext application context supplied by Spring
+     * @throws BeansException when Spring cannot apply the aware callback
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
+    /**
+     * Returns the base package used for component scanning.
+     *
+     * <p>Return a normal Java package name such as {@code com.example.app}.
+     * Spring scans that package and its subpackages recursively.</p>
+     *
+     * @return non-blank base package name
+     */
+    protected abstract String getBasePackages();
 }
