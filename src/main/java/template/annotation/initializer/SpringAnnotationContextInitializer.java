@@ -44,7 +44,7 @@ public abstract class SpringAnnotationContextInitializer implements ApplicationC
      * <p>Instantiation is eager: when this constructor returns, the context has
      * already been refreshed and discovered beans can be retrieved immediately.</p>
      */
-    protected SpringAnnotationContextInitializer() {
+    public SpringAnnotationContextInitializer() {
         this.applicationContext = new AnnotationConfigApplicationContext();
         updateLoggers();
         initializeBeans();
