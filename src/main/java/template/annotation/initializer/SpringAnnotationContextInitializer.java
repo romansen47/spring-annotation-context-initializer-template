@@ -33,7 +33,7 @@ import org.springframework.context.support.AbstractApplicationContext;
  */
 public abstract class SpringAnnotationContextInitializer implements ApplicationContextAware {
 
-    private static final Logger logger = LogManager.getLogger(SpringAnnotationContextInitializer.class);
+    private static final Logger logger = LogManager.getLogger(SpringAnnotationContextInitializer.class.getSimpleName());
 
     private ApplicationContext applicationContext;
 
