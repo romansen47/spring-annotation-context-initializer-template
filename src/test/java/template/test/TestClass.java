@@ -1,9 +1,12 @@
 package template.test;
 
+import java.lang.reflect.Field;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
@@ -92,6 +95,22 @@ public class TestClass {
             initializer.setApplicationContext(applicationContext);
             replacement.close();
         }
+    }
+
+    /**
+     * Verifies that the initializer uses a short logger name so log layouts that
+     * render the logger name do not include the Java package.
+     *
+     * @throws Exception when the logger field cannot be inspected
+     */
+    @Test
+    public void usesShortLoggerName() throws Exception {
+        Field loggerField = SpringAnnotationContextInitializer.class.getDeclaredField("logger");
+        loggerField.setAccessible(true);
+
+        Logger logger = (Logger) loggerField.get(null);
+
+        Assert.assertEquals("SpringAnnotationContextInitializer", logger.getName());
     }
 
     /**
